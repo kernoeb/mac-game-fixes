@@ -1,24 +1,34 @@
 #!/bin/bash
 set -euo pipefail
 
+VALID_CODES="INT FRA DEU ESN ESM ITA PTB RUS"
+
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <path-to-game.app> <language-code>"
     echo "Example: $0 '/Applications/Life Is Strange.app' FRA"
     echo ""
-    echo "Language codes: INT (English), FRA (French), DEU (German),"
-    echo "  ESN (Spanish), ESM (Latin American Spanish), ITA (Italian),"
-    echo "  PTB (Brazilian Portuguese), RUS (Russian)"
+    echo "Language codes: $VALID_CODES"
     exit 1
 fi
 
 APP_PATH="$1"
 LANG_CODE="$2"
 
+# Validate language code
+if ! echo "$VALID_CODES" | grep -qw "$LANG_CODE"; then
+    echo "Error: Unknown language code '$LANG_CODE'"
+    echo "Valid codes: $VALID_CODES"
+    exit 1
+fi
+
 # Map UE3 language codes to lproj folder names
-declare -A LPROJ_MAP=(
-    [INT]=en [FRA]=fr [DEU]=de [ESN]=es [ESM]=es_419
-    [ITA]=it [PTB]=pt_BR [RUS]=ru
-)
+lproj_for_code() {
+    case "$1" in
+        INT) echo "en" ;; FRA) echo "fr" ;; DEU) echo "de" ;;
+        ESN) echo "es" ;; ESM) echo "es_419" ;; ITA) echo "it" ;;
+        PTB) echo "pt_BR" ;; RUS) echo "ru" ;;
+    esac
+}
 
 # Find the defaultengine.ini
 ENGINE_INI=$(find "$APP_PATH/Contents/Resources/Data" -name "defaultengine.ini" -path "*/config/*" 2>/dev/null | head -1)
@@ -29,15 +39,15 @@ if [ -z "$ENGINE_INI" ]; then
     exit 1
 fi
 
-# Check current language
-CURRENT=$(grep "^Language=" "$ENGINE_INI" | head -1 | cut -d= -f2)
+get_language() { grep "^Language=" "$1" 2>/dev/null | head -1 | cut -d= -f2; }
+
+CURRENT=$(get_language "$ENGINE_INI")
 echo "Current language: $CURRENT"
 echo "Target language:  $LANG_CODE"
 
 if [ "$CURRENT" = "$LANG_CODE" ]; then
     echo "Already set to $LANG_CODE, nothing to change."
 else
-    # Patch defaultengine.ini
     sed -i '' "s/^Language=.*/Language=$LANG_CODE/" "$ENGINE_INI"
     echo "Patched: $ENGINE_INI"
 fi
@@ -47,9 +57,9 @@ SUPPORT_DIR="$HOME/Library/Application Support/Feral Interactive"
 GAME_NAME=$(basename "$APP_PATH" .app)
 USER_INI=$(find "$SUPPORT_DIR/$GAME_NAME" -name "*Engine.ini" 2>/dev/null | head -1)
 
-if [ -n "$USER_INI" ] && grep -q "^Language=" "$USER_INI" 2>/dev/null; then
-    USER_CURRENT=$(grep "^Language=" "$USER_INI" | head -1 | cut -d= -f2)
-    if [ "$USER_CURRENT" != "$LANG_CODE" ]; then
+if [ -n "$USER_INI" ]; then
+    USER_CURRENT=$(get_language "$USER_INI")
+    if [ -n "$USER_CURRENT" ] && [ "$USER_CURRENT" != "$LANG_CODE" ]; then
         sed -i '' "s/^Language=.*/Language=$LANG_CODE/" "$USER_INI"
         echo "Patched user config: $USER_INI"
     fi
@@ -58,11 +68,10 @@ fi
 # Fix Feral launcher strings if en.lproj contains Russian
 EN_STRINGS="$APP_PATH/Contents/Resources/en.lproj/Localizable.strings"
 if [ -f "$EN_STRINGS" ]; then
-    LPROJ_NAME="${LPROJ_MAP[$LANG_CODE]:-}"
+    LPROJ_NAME=$(lproj_for_code "$LANG_CODE")
     TARGET_STRINGS="$APP_PATH/Contents/Resources/${LPROJ_NAME}.lproj/Localizable.strings"
 
-    # Check if en.lproj contains Cyrillic (Russian) text
-    if iconv -f UTF-16 -t UTF-8 "$EN_STRINGS" 2>/dev/null | grep -qP '[\x{0400}-\x{04FF}]' 2>/dev/null; then
+    if iconv -f UTF-16 -t UTF-8 "$EN_STRINGS" 2>/dev/null | perl -ne 'exit 0 if /\p{Cyrillic}/; END { exit 1 }' 2>/dev/null; then
         echo ""
         echo "Warning: en.lproj contains Russian text (repackaged build)."
 

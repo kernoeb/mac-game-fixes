@@ -32,7 +32,7 @@ See [`feral-language-fix/`](feral-language-fix/)
 
 - macOS 14+ (Sonoma or later)
 - Xbox controller connected via Bluetooth (USB has limited support — macOS's native driver doesn't expose standard HID elements over USB)
-- Python 3 (pre-installed on macOS)
+- Python 3 (required only for the Unity/InControl fix — install via Xcode Command Line Tools or Homebrew if needed)
 
 ## Credits
 

@@ -20,14 +20,21 @@ fi
 
 mkdir -p "$TARGET_DIR"
 
+installed=0
 for plist in "$SCRIPT_DIR"/plists/*.plist; do
-    name=$(basename "$plist")
-    cp "$plist" "$TARGET_DIR/$name"
-    echo "Installed: $name"
+    [ -f "$plist" ] || continue
+    cp "$plist" "$TARGET_DIR/${plist##*/}"
+    echo "Installed: ${plist##*/}"
+    installed=$((installed + 1))
 done
 
+if [ "$installed" -eq 0 ]; then
+    echo "Error: No .plist files found in $SCRIPT_DIR/plists/"
+    exit 1
+fi
+
 echo ""
-echo "Done! Plists installed to:"
+echo "Done! $installed plist(s) installed to:"
 echo "  $TARGET_DIR"
 echo ""
 echo "Remember:"
