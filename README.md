@@ -22,7 +22,13 @@ Unity games using the InControl library don't recognize macOS's native Xbox cont
 
 See [`unity-incontrol-fix/`](unity-incontrol-fix/)
 
-### 3. Feral Interactive — Language Fix
+### 3. Unity/JoystickMapping — Xbox Wireless Controller Shows PlayStation Glyphs
+
+Some Unity games (e.g. Life is Strange: Before the Storm) do their own joystick-name matching instead of using InControl. A Bluetooth Xbox Wireless Controller reports `"Xbox Wireless Controller"`, which falls into the PlayStation branch because it contains `"wireless"`.
+
+See [`unity-joystickmapping-fix/`](unity-joystickmapping-fix/)
+
+### 4. Feral Interactive — Language Fix
 
 Some repackaged Feral ports have hardcoded Russian language settings.
 
