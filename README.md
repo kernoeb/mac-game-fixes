@@ -6,6 +6,7 @@ Fixes for old Mac game ports that don't work properly on modern macOS (Apple Sil
 
 - **Xbox controller not detected** in Feral Interactive ports (Life Is Strange, Tomb Raider, etc.)
 - **Xbox controller buttons not working** in Unity games using InControl (OXENFREE, etc.)
+- **Xbox controller face buttons not working** in RPCS3 (PS3 emulator)
 - **Wrong language** in Russian-repackaged Feral ports
 
 ## Fixes
@@ -28,7 +29,13 @@ Some Unity games (e.g. Life is Strange: Before the Storm) do their own joystick-
 
 See [`unity-joystickmapping-fix/`](unity-joystickmapping-fix/)
 
-### 4. Feral Interactive — Language Fix
+### 4. RPCS3 — Xbox Controller Face Buttons
+
+RPCS3's SDL handler on macOS pre-fills face buttons with legacy SDL2 labels (`A`/`B`/`X`/`Y`) while the runtime now expects SDL3 labels (`South`/`East`/`West`/`North`). Stick and D-Pad work, but A/B/X/Y on an Xbox controller do nothing.
+
+See [`rpcs3-xbox-fix/`](rpcs3-xbox-fix/)
+
+### 5. Feral Interactive — Language Fix
 
 Some repackaged Feral ports have hardcoded Russian language settings.
 
