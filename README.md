@@ -8,6 +8,8 @@ Fixes for old Mac game ports that don't work properly on modern macOS (Apple Sil
 - **Xbox controller buttons not working** in Unity games using InControl (OXENFREE, etc.)
 - **Xbox controller face buttons not working** in RPCS3 (PS3 emulator)
 - **Wrong language** in Russian-repackaged Feral ports
+- **Xbox controller not detected over USB** in games bundling an old SDL2 (Hades, other 2022-era ports)
+- **Game Mode never activates** for old ports and repacks
 
 ## Fixes
 
@@ -41,10 +43,23 @@ Some repackaged Feral ports have hardcoded Russian language settings.
 
 See [`feral-language-fix/`](feral-language-fix/)
 
+### 6. Stale Bundled SDL2 — Xbox Controller Over USB
+
+Games shipping their own SDL2 older than 2.0.18 have no GameController (`SDL_JOYSTICK_MFI`) backend. Over USB the Xbox pad exposes only vendor-defined HID elements (`UsagePage 0xFF00`), so those builds see zero axes and zero buttons. Dropping in a current SDL2 makes wired play work.
+
+See [`sdl2-usb-controller-fix/`](sdl2-usb-controller-fix/)
+
+### 7. Game Mode Never Activates
+
+Old bundles lack `LSApplicationCategoryType`, and repacks often lack `CFBundleIdentifier` too, so `gamepolicyd` never treats the app as a game.
+
+See [`gamemode-plist-fix/`](gamemode-plist-fix/)
+
 ## Prerequisites
 
 - macOS 14+ (Sonoma or later)
-- Xbox controller connected via Bluetooth (USB has limited support — macOS's native driver doesn't expose standard HID elements over USB)
+- Xbox controller connected via Bluetooth for fixes 1-5 (macOS's native driver doesn't expose standard HID elements over USB, so anything reading raw HID needs Bluetooth)
+- USB works for fix 6, which routes the pad through the GameController framework instead of raw HID
 - Python 3 (required only for the Unity/InControl fix — install via Xcode Command Line Tools or Homebrew if needed)
 
 ## Credits
