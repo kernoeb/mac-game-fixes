@@ -35,7 +35,19 @@ python3 -c 'import sys; d=open(sys.argv[1],"rb").read(); print("joystick button 
 
 `True` means the game probably expects the 360 layout and this fix applies.
 
-## Fix
+## Fix with a command
+
+The script writes the same setting as System Settings, for every controller macOS knows:
+
+```bash
+./enable-compat-mode.py "/path/to/Game.app"         # turn on
+./enable-compat-mode.py "/path/to/Game.app" --off   # turn off
+./enable-compat-mode.py --list                      # show controllers and games
+```
+
+Quit the game fully and start it again afterwards.
+
+## Fix in System Settings
 
 1. Connect the controller (USB or Bluetooth).
 2. Open System Settings, then Game Controllers.
@@ -55,3 +67,6 @@ You should see `controllerToCompatibilityModeMappings` set to `xbox360`.
 ## Tested games
 
 - Firewatch (Unity 5.6.5, GOG build), Xbox Series controller over USB
+- Blue Prince (Unity IL2CPP, Rewired), Xbox Series controller over USB, set with the script
+
+Rewired reads raw HID on macOS, so over USB it sees nothing for the same reason. The synthetic 360 pad fixes it too.

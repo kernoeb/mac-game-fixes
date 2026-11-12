@@ -10,7 +10,7 @@ Fixes for old Mac game ports that don't work properly on modern macOS (Apple Sil
 - **Wrong language** in Russian-repackaged Feral ports
 - **Xbox controller not detected over USB** in games bundling an old SDL2 (Hades, other 2022-era ports)
 - **Game Mode never activates** for old ports and repacks
-- **Xbox controller does nothing** in old Unity games using legacy input (Firewatch)
+- **Xbox controller does nothing** in old Unity games using legacy input (Firewatch) or Rewired over USB (Blue Prince)
 
 ## Fixes
 
@@ -58,7 +58,7 @@ See [`gamemode-plist-fix/`](gamemode-plist-fix/)
 
 ### 8. Unity legacy input — Xbox controller does nothing
 
-Old Unity games like Firewatch hardcode the button numbers of the old Mac Xbox 360 driver. Turning on "Increase controller compatibility" for the game in System Settings makes macOS fake that driver layout, over USB or Bluetooth. No patch needed.
+Old Unity games like Firewatch hardcode the button numbers of the old Mac Xbox 360 driver. Turning on "Increase controller compatibility" for the game in System Settings makes macOS fake that driver layout, over USB or Bluetooth. No patch needed. A script sets it from the command line.
 
 See [`unity-legacy-input-fix/`](unity-legacy-input-fix/)
 
